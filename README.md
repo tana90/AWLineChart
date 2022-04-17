@@ -16,21 +16,24 @@ struct LineChartData: AWLineChartData {
 class <#Your View Controller#>: UIViewController {
 
     lazy var lineChart: AWLineChart = {
-            let lineChart = AWLineChart()
-            lineChart.gridWidth: CGFloat = 0.3
-            lineChart.lineWidth: CGFloat = 3
-            lineChart.sideSpace: CGFloat = 44
-            lineChart.bottomSpace: CGFloat = 44
-            lineChart.showVerticalGrid: Bool = true
-            lineChart.showHorizontalGrid: Bool = true
-            lineChart.showBottomLabels: Bool = true
-            lineChart.showSideLabels: Bool = true
-            lineChart.gridColor: UIColor = .gray
-            lineChart.labelsColor: UIColor = .black
-            lineChart.animationDuration: Float = 0.3
-            lineChart.chartType = .curved
-            return lineGraph
-        }()
+        let lineChart = AWLineChart()
+        lineChart.gridWidth: CGFloat = 0.3
+        lineChart.lineWidth: CGFloat = 3
+        lineChart.sideSpace: CGFloat = 44
+        lineChart.bottomSpace: CGFloat = 44
+        lineChart.showVerticalGrid: Bool = true
+        lineChart.showHorizontalGrid: Bool = true
+        lineChart.showBottomLabels: Bool = true
+        lineChart.showSideLabels: Bool = true
+        lineChart.gridColor: UIColor = .gray
+        lineChart.labelsColor: UIColor = .black
+        lineChart.animationDuration: Float = 0.3
+        lineChart.chartType = .curved
+        lineChart.tintColor = .orange
+        lineChart.dataSource = self
+        lineChart.delegate = self
+        return lineGraph
+    }()
         
     var data: [LineGraphData] = [
         LineChartData(xValue: "Value 1", yValue: 0.4),
@@ -43,9 +46,6 @@ class <#Your View Controller#>: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        lineChart.tintColor = .orange
-        lineChart.dataSource = self
-        lineChart.delegate = self
         lineChart.reloadData()
     }
 }
