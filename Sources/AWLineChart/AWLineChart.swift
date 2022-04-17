@@ -29,22 +29,22 @@ import UIKit
 // MARK: Chart DataSource
 
 public protocol AWLineChartDataSource: AnyObject {
-    func numberOfItems(in lineGraph: AWChartGraph) -> Int
-    func numberOfBottomLabels(in lineGraph: AWChartGraph) -> Int
-    func numberOfSideLabels(in lineGrapg: AWChartGraph) -> Int
-    func numberOfVerticalLines(in lineGraph: AWChartGraph) -> Int
-    func numberOfHorizontalLines(in lineGraph: AWChartGraph) -> Int
-    func lineGraph(_ lineGraph: AWChartGraph, xValueAt index: Int) -> String
-    func lineGraph(_ lineGraph: AWChartGraph, yValueAt index: Int) -> CGFloat
-    func lineGraph(_ lineGraph: AWChartGraph, verticalDashPatternAt index: Int) -> [NSNumber]
-    func lineGraph(_ lineGraph: AWChartGraph, horizontalDashPatternAt index: Int) -> [NSNumber]
+    func numberOfItems(in lineGraph: AWLineChart) -> Int
+    func numberOfBottomLabels(in lineGraph: AWLineChart) -> Int
+    func numberOfSideLabels(in lineGrapg: AWLineChart) -> Int
+    func numberOfVerticalLines(in lineGraph: AWLineChart) -> Int
+    func numberOfHorizontalLines(in lineGraph: AWLineChart) -> Int
+    func lineGraph(_ lineGraph: AWLineChart, xValueAt index: Int) -> String
+    func lineGraph(_ lineGraph: AWLineChart, yValueAt index: Int) -> CGFloat
+    func lineGraph(_ lineGraph: AWLineChart, verticalDashPatternAt index: Int) -> [NSNumber]
+    func lineGraph(_ lineGraph: AWLineChart, horizontalDashPatternAt index: Int) -> [NSNumber]
 }
 
 // MARK: Chart Delegate
 
 public protocol AWLineChartDelegate: AnyObject {
-    func lineGraphDidStartRender(_ lineGraph: AWChartGraph)
-    func lineGraphDidFinishRender(_ lineGraph: AWChartGraph)
+    func lineGraphDidStartRender(_ lineGraph: AWLineChart)
+    func lineGraphDidFinishRender(_ lineGraph: AWLineChart)
 }
 
 // MARK: Chart data
@@ -65,7 +65,7 @@ public enum AWLineChartType: Int {
 
 // MARK: - UIView
 
-public final class AWChartGraph: UIView {
+public final class AWLineChart: UIView {
 
     @IBInspectable public var gridWidth: CGFloat = 0.3
     @IBInspectable public var lineWidth: CGFloat = 3
@@ -109,7 +109,7 @@ public final class AWChartGraph: UIView {
 
 // MARK: Helpers
 
-extension AWChartGraph {
+extension AWLineChart {
 
     fileprivate func render(_ dataSource: AWLineChartDataSource,
                             _ dispatchQueue: DispatchQueue = .global(),
@@ -511,7 +511,7 @@ extension AWChartGraph {
     }
 }
 
-extension AWChartGraph {
+extension AWLineChart {
 
     fileprivate func line(from startPoint: CGPoint,
                           to endPoint: CGPoint,
