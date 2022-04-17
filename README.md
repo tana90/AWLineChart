@@ -8,6 +8,7 @@ A description of this package.
 ```swift
 
 // MARK: Chart data model
+
 struct LineChartData: AWLineChartData {
     var xValue: String
     var yValue: Double
