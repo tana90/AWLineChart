@@ -3,7 +3,7 @@ A description of this package.
 ## Simple - lightweight line chart
 <a href="https://swift.org/package-manager/"><img src="https://img.shields.io/badge/SPM-supported-DE5C43.svg?style=flat"></a>
 
-### How to use
+### How to use example
 
 ```swift
 
@@ -50,7 +50,8 @@ class <#Your View Controller#>: UIViewController {
     }
 }
     
-// MARK: Data Source    
+// MARK: Data Source
+
 extension <#Your View Controller#>: AWLineChartDataSource {
 
     func numberOfItems(in lineGraph: AWLineChart) -> Int { 
@@ -77,6 +78,8 @@ extension <#Your View Controller#>: AWLineChartDataSource {
     
     func lineGraph(_ lineGraph: AWLineChart, horizontalDashPatternAt index: Int) -> [NSNumber] { [4.0, 18.0] }
 }
+
+// MARK: Delegate
 
 extension <#Your View Controller#>: AWLineChartDelegate {
     
