@@ -126,7 +126,8 @@ extension AWLineChart {
 
         // Check if we can draw chart
         guard minValue != maxValue,
-                dataSource.numberOfItems(in: self) >= dataSource.numberOfBottomLabels(in: self) else {
+              dataSource.numberOfItems(in: self) > 1,
+              dataSource.numberOfItems(in: self) >= dataSource.numberOfBottomLabels(in: self) else {
             completion()
             return
         }
