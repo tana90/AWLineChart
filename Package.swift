@@ -22,8 +22,5 @@ let package = Package(
         .target(
             name: "AWLineChart",
             dependencies: []),
-        .testTarget(
-            name: "AWLineChartTests",
-            dependencies: ["AWLineChart"]),
     ]
 )

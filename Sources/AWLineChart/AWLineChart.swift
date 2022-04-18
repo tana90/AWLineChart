@@ -29,22 +29,22 @@ import UIKit
 // MARK: Chart DataSource
 
 public protocol AWLineChartDataSource: AnyObject {
-    func numberOfItems(in lineGraph: AWLineChart) -> Int
-    func numberOfBottomLabels(in lineGraph: AWLineChart) -> Int
-    func numberOfSideLabels(in lineGrapg: AWLineChart) -> Int
-    func numberOfVerticalLines(in lineGraph: AWLineChart) -> Int
-    func numberOfHorizontalLines(in lineGraph: AWLineChart) -> Int
-    func lineGraph(_ lineGraph: AWLineChart, xValueAt index: Int) -> String
-    func lineGraph(_ lineGraph: AWLineChart, yValueAt index: Int) -> CGFloat
-    func lineGraph(_ lineGraph: AWLineChart, verticalDashPatternAt index: Int) -> [NSNumber]
-    func lineGraph(_ lineGraph: AWLineChart, horizontalDashPatternAt index: Int) -> [NSNumber]
+    func numberOfItems(in lineChart: AWLineChart) -> Int
+    func numberOfBottomLabels(in lineChart: AWLineChart) -> Int
+    func numberOfSideLabels(in lineChart: AWLineChart) -> Int
+    func numberOfVerticalLines(in lineChart: AWLineChart) -> Int
+    func numberOfHorizontalLines(in lineChart: AWLineChart) -> Int
+    func lineChart(_ lineChart: AWLineChart, xValueAt index: Int) -> String
+    func lineChart(_ lineChart: AWLineChart, yValueAt index: Int) -> CGFloat
+    func lineChart(_ lineChart: AWLineChart, verticalDashPatternAt index: Int) -> [NSNumber]
+    func lineChart(_ lineChart: AWLineChart, horizontalDashPatternAt index: Int) -> [NSNumber]
 }
 
 // MARK: Chart Delegate
 
 public protocol AWLineChartDelegate: AnyObject {
-    func lineGraphDidStartRender(_ lineGraph: AWLineChart)
-    func lineGraphDidFinishRender(_ lineGraph: AWLineChart)
+    func lineCharthDidStartRender(_ lineChart: AWLineChart)
+    func lineChartDidFinishRender(_ lineChart: AWLineChart)
 }
 
 // MARK: Chart data
@@ -99,10 +99,10 @@ public final class AWLineChart: UIView {
 
     public func reloadData(on dispatchQueue: DispatchQueue = .global(qos: .userInitiated)) {
         guard let dataSource = dataSource else { return }
-        delegate?.lineGraphDidStartRender(self)
+        delegate?.lineCharthDidStartRender(self)
         render(dataSource, dispatchQueue) { [weak self] in
             guard let self = self else { return }
-            self.delegate?.lineGraphDidFinishRender(self)
+            self.delegate?.lineChartDidFinishRender(self)
         }
     }
 }
@@ -199,7 +199,7 @@ extension AWLineChart {
         minValue = CGFloat.greatestFiniteMagnitude
         maxValue = 0.0
         for index in 0..<dataSource.numberOfItems(in: self) {
-            let yValue = dataSource.lineGraph(self, yValueAt: index)
+            let yValue = dataSource.lineChart(self, yValueAt: index)
             if maxValue < yValue { maxValue = yValue }
             if minValue > yValue { minValue = yValue }
         }
@@ -231,7 +231,7 @@ extension AWLineChart {
                           frame: bounds,
                           color: self.gridColor,
                           width: self.gridWidth,
-                          dashPatern: dataSource.lineGraph(self, verticalDashPatternAt: index)) { layer in
+                          dashPatern: dataSource.lineChart(self, verticalDashPatternAt: index)) { layer in
                     tLayer.addSublayer(layer)
                     drawGroup.leave()
                 }
@@ -262,7 +262,7 @@ extension AWLineChart {
                           frame: bounds,
                           color: self.gridColor,
                           width: self.gridWidth,
-                          dashPatern: dataSource.lineGraph(self, horizontalDashPatternAt: index)) { layer in
+                          dashPatern: dataSource.lineChart(self, horizontalDashPatternAt: index)) { layer in
                     tLayer.addSublayer(layer)
                     drawGroup.leave()
                 }
@@ -336,7 +336,7 @@ extension AWLineChart {
                 var yPos = self.graphHeight - (CGFloat(drawIndex) * hSpace)
                 if xPos.isNaN { xPos = 0 }
                 if yPos.isNaN {
-                    if dataSource.lineGraph(self, yValueAt: drawIndex) != 0 {
+                    if dataSource.lineChart(self, yValueAt: drawIndex) != 0 {
                         yPos = -10
                     } else {
                         yPos = self.graphHeight - 10
@@ -369,7 +369,7 @@ extension AWLineChart {
                                 to: dataSource.numberOfItems(in: self),
                                 by: Int.Stride(ceil(Float(dataSource.numberOfItems(in: self) /
                                                           dataSource.numberOfBottomLabels(in: self))))) {
-                values.append(dataSource.lineGraph(self, xValueAt: index))
+                values.append(dataSource.lineChart(self, xValueAt: index))
             }
 
             let vSpace = self.graphWidth / CGFloat(values.count)
@@ -415,7 +415,7 @@ extension AWLineChart {
             for index in 0..<dataSource.numberOfItems(in: self) {
 
                 let xPos = vSpace * CGFloat(index)
-                var yPos = self.graphHeight - (CGFloat(dataSource.lineGraph(self, yValueAt: index) -
+                var yPos = self.graphHeight - (CGFloat(dataSource.lineChart(self, yValueAt: index) -
                                                        self.minValue) * self.graphHeight) /
                 CGFloat(self.maxValue - self.minValue)
                 if yPos < self.padding { yPos = self.padding }

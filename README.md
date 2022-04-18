@@ -36,7 +36,7 @@ class <#Your View Controller#>: UIViewController {
         return lineGraph
     }()
         
-    var data: [LineGraphData] = [
+    var data: [LineChartData] = [
         LineChartData(xValue: "Value 1", yValue: 0.4),
         LineChartData(xValue: "Value 2", yValue: 0.6),
         LineChartData(xValue: "Value 3", yValue: 0.7),
@@ -55,40 +55,40 @@ class <#Your View Controller#>: UIViewController {
 
 extension <#Your View Controller#>: AWLineChartDataSource {
 
-    func numberOfItems(in lineGraph: AWLineChart) -> Int { 
+    func numberOfItems(in lineChart: AWLineChart) -> Int { 
         return data.count 
     }
     
-    func lineGraph(_ lineGraph: AWLineChart, xValueAt index: Int) -> String { 
+    func lineChart(_ lineChart: AWLineChart, xValueAt index: Int) -> String { 
         return data[index].xValue 
     }
     
-    func lineGraph(_ lineGraph: AWLineChart, yValueAt index: Int) -> Double { 
+    func lineChart(_ lineChart: AWLineChart, yValueAt index: Int) -> Double { 
         return data[index].yValue 
     }
     
-    func numberOfVerticalLines(in lineGraph: AWLineChart) -> Int { 6 }
+    func numberOfVerticalLines(in lineChart: AWLineChart) -> Int { 6 }
     
-    func numberOfHorizontalLines(in lineGraph: AWLineChart) -> Int { 4 }
+    func numberOfHorizontalLines(in lineChart: AWLineChart) -> Int { 4 }
     
-    func numberOfBottomLabels(in lineGraph: AWLineChart) -> Int { 6 }
+    func numberOfBottomLabels(in lineChart: AWLineChart) -> Int { 6 }
     
-    func numberOfSideLabels(in lineGrapg: AWLineChart) -> Int { 5 }
+    func numberOfSideLabels(in lineChart: AWLineChart) -> Int { 5 }
     
-    func lineGraph(_ lineGraph: AWLineChart, verticalDashPatternAt index: Int) -> [NSNumber] { [] }
+    func lineChart(_ lineChart: AWLineChart, verticalDashPatternAt index: Int) -> [NSNumber] { [] }
     
-    func lineGraph(_ lineGraph: AWLineChart, horizontalDashPatternAt index: Int) -> [NSNumber] { [4.0, 18.0] }
+    func lineChart(_ lineChart: AWLineChart, horizontalDashPatternAt index: Int) -> [NSNumber] { [4.0, 18.0] }
 }
 
 // MARK: Delegate
 
 extension <#Your View Controller#>: AWLineChartDelegate {
     
-    func lineGraphDidStartRender(_ lineGraph: AWLineChart) {
+    func lineChartDidStartRender(_ lineChart: AWLineChart) {
         // Called when start rendering
     }
     
-    func lineGraphDidFinishRender(_ lineGraph: AWLineChart) {
+    func lineChartDidFinishRender(_ lineChart: AWLineChart) {
         // Called when finish rendering
     }
 }
