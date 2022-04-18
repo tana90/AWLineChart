@@ -84,7 +84,7 @@ public final class AWLineChart: UIView {
     fileprivate var maxValue: CGFloat = 0.0
     fileprivate var graphWidth: CGFloat = 0.0
     fileprivate var graphHeight: CGFloat = 0.0
-    fileprivate let padding: CGFloat = 16
+    fileprivate let padding: CGFloat = 22
 
     public weak var dataSource: AWLineChartDataSource?
     public weak var delegate: AWLineChartDelegate?
@@ -123,6 +123,13 @@ extension AWLineChart {
 
         // Calculate min and max
         calculateSizes(dataSource)
+
+        // Check if we can draw chart
+        guard minValue != maxValue,
+                dataSource.numberOfItems(in: self) >= dataSource.numberOfBottomLabels(in: self) else {
+            completion()
+            return
+        }
 
         // Draw axis
         renderGroup.enter()
@@ -353,7 +360,6 @@ extension AWLineChart {
                 tLayers.append(label)
                 drawIndex += 1
             }
-
             completion(tLayers)
         }
     }
@@ -391,10 +397,8 @@ extension AWLineChart {
                 label.foregroundColor = self.labelsColor.cgColor
                 label.frame = .init(origin: CGPoint(x: xPos, y: yPos),
                                     size: label.preferredFrameSize())
-
                 tLayers.append(label)
             }
-
             completion(tLayers)
         }
     }
@@ -413,7 +417,6 @@ extension AWLineChart {
             let vSpace = self.graphWidth / CGFloat(dataSource.numberOfItems(in: self))
             var pointsData: [CGPoint] = []
             for index in 0..<dataSource.numberOfItems(in: self) {
-
                 let xPos = vSpace * CGFloat(index)
                 var yPos = self.graphHeight - (CGFloat(dataSource.lineChart(self, yValueAt: index) -
                                                        self.minValue) * self.graphHeight) /
@@ -422,6 +425,9 @@ extension AWLineChart {
                 if yPos > self.graphHeight - self.padding { yPos = self.graphHeight - self.padding}
                 pointsData.append(CGPoint(x: xPos, y: yPos))
             }
+            pointsData.append(CGPoint(x: vSpace * CGFloat(dataSource.numberOfItems(in: self)),
+                                      y: pointsData.last?.y ?? self.graphHeight))
+
             let lineBezierPath = UIBezierPath()
             let gradientBezierPath = UIBezierPath()
             let config = AWBezierConfiguration()
@@ -430,7 +436,6 @@ extension AWLineChart {
             gradientBezierPath.move(to: CGPoint(x: 0, y: self.graphHeight))
             for index in 0 ..< pointsData.count {
                 let point = pointsData[index]
-
                 switch index {
                 case 0 where self.chartType == .curved:
                     lineBezierPath.move(to: point)
@@ -439,8 +444,13 @@ extension AWLineChart {
                     lineBezierPath.move(to: point)
                     gradientBezierPath.addLine(to: point)
                 default:
+
                     let segment = controlPoints[index - 1]
-                    if self.chartType == .curved {
+                    switch self.chartType {
+                    case .linear:
+                        lineBezierPath.addLine(to: point)
+                        gradientBezierPath.addLine(to: point)
+                    case .curved:
                         var firstControlPoint = segment.firstControlPoint
                         if firstControlPoint.y > self.graphHeight {
                             firstControlPoint.y = self.graphHeight
@@ -451,15 +461,14 @@ extension AWLineChart {
                         gradientBezierPath.addCurve(to: point,
                                                     controlPoint1: segment.firstControlPoint,
                                                     controlPoint2: segment.secondControlPoint)
-                    } else {
-                        lineBezierPath.addLine(to: point)
-                        gradientBezierPath.addLine(to: point)
+
                     }
                 }
             }
 
             let finalPoint = CGPoint(x: vSpace * (CGFloat(pointsData.count) - 1), y: self.graphHeight)
             gradientBezierPath.addCurve(to: finalPoint, controlPoint1: finalPoint, controlPoint2: finalPoint)
+
             let shapeLayer = CAShapeLayer()
             shapeLayer.path = lineBezierPath.cgPath
             shapeLayer.lineWidth = self.lineWidth
