@@ -43,7 +43,7 @@ public protocol AWLineChartDataSource: AnyObject {
 // MARK: Chart Delegate
 
 public protocol AWLineChartDelegate: AnyObject {
-    func lineCharthDidStartRender(_ lineChart: AWLineChart)
+    func lineChartDidStartRender(_ lineChart: AWLineChart)
     func lineChartDidFinishRender(_ lineChart: AWLineChart)
 }
 
@@ -99,7 +99,7 @@ public final class AWLineChart: UIView {
 
     public func reloadData(on dispatchQueue: DispatchQueue = .global(qos: .userInitiated)) {
         guard let dataSource = dataSource else { return }
-        delegate?.lineCharthDidStartRender(self)
+        delegate?.lineChartDidStartRender(self)
         render(dataSource, dispatchQueue) { [weak self] in
             guard let self = self else { return }
             self.delegate?.lineChartDidFinishRender(self)
