@@ -1,5 +1,5 @@
 //
-//  AWLineChartExtensions.swift
+//  AWCenterTextLayer.swift
 //
 //  Copyright 2022 TANA (Tudor Octavian Ana)
 //
@@ -26,45 +26,35 @@
 
 import UIKit
 
-// MARK: Double extension
-
-extension Double {
+public class AWCenterTextLayer: CATextLayer {
     
-    public func compact() -> String {
-        if self >= 1000000 {
-            return String(format: "%.1fm", Double(self) / 1000000)
-        } else if self >= 1000 {
-            return String(format: "%.1fk", Double(self) / 1000)
-        } else {
-            return String(format: "%.0f", self)
-        }
+    public override init() {
+        super.init()
+        self.setup()
     }
-}
-
-// MARK: CGFloat extenstion
-
-extension CGFloat {
     
-    public func compact() -> String {
-        if self >= 1000000 {
-            return String(format: "%.1fm", CGFloat(self) / 1000000)
-        } else if self >= 1000 {
-            return String(format: "%.1fk", CGFloat(self) / 1000)
-        } else {
-            return String(format: "%.0f", self)
-        }
+    public override init(layer: Any) {
+        super.init(layer: layer)
+        self.setup()
     }
-}
-
-// MARK: Array extension
-
-extension Array {
     
-    public func pick(length: Int) -> [Element] {
-        precondition(length >= 0, "length must not be negative")
-        if length >= count { return self }
-        let oldMax = Double(count - 1)
-        let newMax = Double(length - 1)
-        return (0..<length).map { self[Int((Double($0) * oldMax / newMax).rounded())] }
+    public required init(coder aDecoder: NSCoder) {
+        super.init(layer: aDecoder)
+        self.setup()
+    }
+    
+    public override func draw(in ctx: CGContext) {
+        let multiplier = CGFloat(1)
+        let yDiff = (bounds.size.height - ((string as? NSAttributedString)?.size().height ?? fontSize)) / 2 * multiplier
+        ctx.saveGState()
+        ctx.translateBy(x: 0.0, y: yDiff)
+        super.draw(in: ctx)
+        ctx.restoreGState()
+    }
+    
+    fileprivate func setup() {
+        alignmentMode = .center
+        allowsEdgeAntialiasing = true
+        contentsScale = UIScreen.main.scale
     }
 }
