@@ -61,7 +61,8 @@ extension CGFloat {
 extension Array {
     
     public func pick(length: Int) -> [Element] {
-        precondition(length >= 0, "length must not be negative")
+        var length = length
+        if length < 2 { length = 2 }
         if length >= count { return self }
         let oldMax = Double(count - 1)
         let newMax = Double(length - 1)

@@ -125,7 +125,8 @@ extension AWLineChart {
         calculateSizes(dataSource)
         
         // Check if we can draw chart
-        guard dataSource.numberOfItems(in: self) >= dataSource.numberOfBottomLabels(in: self) else {
+        guard dataSource.numberOfItems(in: self) > 0,
+            dataSource.numberOfItems(in: self) >= dataSource.numberOfBottomLabels(in: self) else {
             delegate?.lineChartDidFailRender(self)
             return
         }
@@ -336,7 +337,7 @@ extension AWLineChart {
             guard let self = self else { return }
             var tLayers = [AWCenterTextLayer]()
             var values: [CGFloat] = []
-            let maxNumberOfLabels = dataSource.numberOfSideLabels(in: self)
+            let maxNumberOfLabels = dataSource.numberOfSideLabels(in: self) + 1
             for index in stride(from: self.minValue,
                                 to: self.maxValue,
                                 by: (self.maxValue - self.minValue) / CGFloat(maxNumberOfLabels)) {
