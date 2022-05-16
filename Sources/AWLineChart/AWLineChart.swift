@@ -125,8 +125,7 @@ extension AWLineChart {
         calculateSizes(dataSource)
         
         // Check if we can draw chart
-        guard minValue != maxValue, minValue < maxValue,
-              dataSource.numberOfItems(in: self) >= dataSource.numberOfBottomLabels(in: self) else {
+        guard dataSource.numberOfItems(in: self) >= dataSource.numberOfBottomLabels(in: self) else {
             delegate?.lineChartDidFailRender(self)
             return
         }
@@ -206,6 +205,20 @@ extension AWLineChart {
             let yValue = dataSource.lineChart(self, yValueAt: index)
             if maxValue < yValue { maxValue = yValue }
             if minValue > yValue { minValue = yValue }
+        }
+        
+        sanitizeValues()
+    }
+    
+    fileprivate func sanitizeValues() {
+        if minValue == maxValue {
+            minValue = 0
+            maxValue *= 2
+            
+            if minValue == 0 && maxValue == 0 {
+                minValue = 0
+                maxValue = 1
+            }
         }
     }
     
