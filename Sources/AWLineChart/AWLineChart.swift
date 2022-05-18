@@ -87,7 +87,7 @@ public final class AWLineChart: UIView {
     fileprivate var maxValue: CGFloat = 0.0
     fileprivate var graphWidth: CGFloat = 0.0
     fileprivate var graphHeight: CGFloat = 0.0
-    fileprivate let padding: CGFloat = 22
+    fileprivate let padding: CGFloat = 25
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -126,7 +126,7 @@ extension AWLineChart {
         
         // Check if we can draw chart
         guard dataSource.numberOfItems(in: self) > 0,
-            dataSource.numberOfItems(in: self) >= dataSource.numberOfBottomLabels(in: self) else {
+              dataSource.numberOfItems(in: self) >= dataSource.numberOfBottomLabels(in: self) else {
             delegate?.lineChartDidFailRender(self)
             return
         }
@@ -186,7 +186,9 @@ extension AWLineChart {
         
         // Draw chart
         renderGroup.enter()
-        drawChart(dataSource, dispatchQueue) { layer in
+        drawChart(dataSource: dataSource,
+                  canvas: CGRect(x: bounds.origin.x, y: bounds.origin.y + padding, width: graphWidth, height: graphHeight - padding - 10),
+                  queue: dispatchQueue) { layer in
             DispatchQueue.main.async { [weak self] in
                 self?.layer.addSublayer(layer)
                 renderGroup.leave()
@@ -415,8 +417,10 @@ extension AWLineChart {
         }
     }
     
-    fileprivate func drawChart(_ dataSource: AWLineChartDataSource,
-                               _ dispatchQueue: DispatchQueue = .init(label: "process_chart_queue"),
+    fileprivate func drawChart(dataSource: AWLineChartDataSource,
+                               canvas rect: CGRect = .zero,
+                               tolerranceValue: CGFloat = 10,
+                               queue dispatchQueue: DispatchQueue = .init(label: "process_chart_queue"),
                                _ completion: @escaping (CALayer) -> Void) {
         
         dispatchQueue.async { [weak self] in
@@ -424,28 +428,26 @@ extension AWLineChart {
             
             // Create a temporary buffer layer
             let tLayer = CALayer()
-            
-            // Draw path
-            let vSpace = self.graphWidth / CGFloat(dataSource.numberOfItems(in: self))
-            var pointsData: [CGPoint] = []
-            for index in 0..<dataSource.numberOfItems(in: self) {
-                let xPos = vSpace * CGFloat(index)
-                var yPos = self.graphHeight - (CGFloat(dataSource.lineChart(self, yValueAt: index) -
-                                                       self.minValue) * self.graphHeight) /
-                CGFloat(self.maxValue - self.minValue)
-                if yPos < self.padding { yPos = self.padding }
-                if yPos > self.graphHeight - self.padding { yPos = self.graphHeight - self.padding}
-                pointsData.append(CGPoint(x: xPos, y: yPos))
-            }
-            pointsData.append(CGPoint(x: vSpace * CGFloat(dataSource.numberOfItems(in: self)),
-                                      y: pointsData.last?.y ?? self.graphHeight))
-            
             let lineBezierPath = UIBezierPath()
             let gradientBezierPath = UIBezierPath()
+            
             let config = AWBezierConfiguration()
+            // Draw path
+            let vSpace = rect.width / CGFloat(dataSource.numberOfItems(in: self))
+            var pointsData: [CGPoint] = []
+            for index in 0..<dataSource.numberOfItems(in: self) {
+                let xPos = rect.origin.x + vSpace * CGFloat(index)
+                let yPos = rect.origin.y + (rect.size.height - (CGFloat(dataSource.lineChart(self, yValueAt: index) -
+                                                                        self.minValue) * rect.size.height) /
+                                            CGFloat(self.maxValue - self.minValue))
+                pointsData.append(CGPoint(x: xPos, y: yPos))
+            }
+            pointsData.append(CGPoint(x: rect.origin.x + vSpace * CGFloat(dataSource.numberOfItems(in: self)),
+                                      y: (pointsData.last?.y ?? rect.size.height)))
+            
             let controlPoints = config.configureControlPoints(data: pointsData)
             
-            gradientBezierPath.move(to: CGPoint(x: 0, y: self.graphHeight))
+            gradientBezierPath.move(to: CGPoint(x: rect.origin.x, y: rect.origin.y + rect.size.height + tolerranceValue))
             for index in 0 ..< pointsData.count {
                 let point = pointsData[index]
                 switch index {
@@ -463,10 +465,6 @@ extension AWLineChart {
                         lineBezierPath.addLine(to: point)
                         gradientBezierPath.addLine(to: point)
                     case .curved:
-                        var firstControlPoint = segment.firstControlPoint
-                        if firstControlPoint.y > self.graphHeight {
-                            firstControlPoint.y = self.graphHeight
-                        }
                         lineBezierPath.addCurve(to: point,
                                                 controlPoint1: segment.firstControlPoint,
                                                 controlPoint2: segment.secondControlPoint)
@@ -478,7 +476,8 @@ extension AWLineChart {
                 }
             }
             
-            let finalPoint = CGPoint(x: vSpace * (CGFloat(pointsData.count) - 1), y: self.graphHeight)
+            let finalPoint = CGPoint(x: rect.origin.x + vSpace * (CGFloat(pointsData.count) - 1),
+                                     y: rect.origin.y + rect.size.height + tolerranceValue)
             gradientBezierPath.addCurve(to: finalPoint, controlPoint1: finalPoint, controlPoint2: finalPoint)
             
             let shapeLayer = CAShapeLayer()
@@ -512,15 +511,7 @@ extension AWLineChart {
             lineGradientLayer.frame = self.bounds
             lineGradientLayer.mask = shapeLayer
             tLayer.insertSublayer(lineGradientLayer, at: 1)
-            
-            // Gradient
-            let gradientAnimation = CABasicAnimation()
-            gradientAnimation.fromValue = 0
-            gradientAnimation.toValue = 1
-            gradientAnimation.duration = 0.7
-            gradientAnimation.timingFunction = .init(name: CAMediaTimingFunctionName.easeOut)
-            fillGradient.add(gradientAnimation, forKey: "opacity")
-            
+
             completion(tLayer)
         }
     }
