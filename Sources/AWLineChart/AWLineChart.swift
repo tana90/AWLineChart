@@ -87,7 +87,7 @@ public final class AWLineChart: UIView {
     fileprivate var maxValue: CGFloat = 0.0
     fileprivate var graphWidth: CGFloat = 0.0
     fileprivate var graphHeight: CGFloat = 0.0
-    fileprivate let padding: CGFloat = 25
+    fileprivate let padding: CGFloat = 22
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -187,7 +187,8 @@ extension AWLineChart {
         // Draw chart
         renderGroup.enter()
         drawChart(dataSource: dataSource,
-                  canvas: CGRect(x: bounds.origin.x, y: bounds.origin.y + padding, width: graphWidth, height: graphHeight - padding - 10),
+                  canvas: CGRect(x: bounds.origin.x, y: bounds.origin.y + padding + lineWidth,
+                                 width: graphWidth, height: graphHeight - padding - lineWidth),
                   queue: dispatchQueue) { layer in
             DispatchQueue.main.async { [weak self] in
                 self?.layer.addSublayer(layer)
@@ -215,8 +216,9 @@ extension AWLineChart {
     
     fileprivate func sanitizeValues() {
         if minValue == maxValue {
-            minValue = 0
-            maxValue *= 2
+            let avg = (minValue + maxValue) / 2
+            minValue = avg / 1.1
+            maxValue = avg / 0.95
             
             if minValue == 0 && maxValue == 0 {
                 minValue = 0
@@ -419,7 +421,6 @@ extension AWLineChart {
     
     fileprivate func drawChart(dataSource: AWLineChartDataSource,
                                canvas rect: CGRect = .zero,
-                               tolerranceValue: CGFloat = 10,
                                queue dispatchQueue: DispatchQueue = .init(label: "process_chart_queue"),
                                _ completion: @escaping (CALayer) -> Void) {
         
@@ -445,9 +446,10 @@ extension AWLineChart {
             pointsData.append(CGPoint(x: rect.origin.x + vSpace * CGFloat(dataSource.numberOfItems(in: self)),
                                       y: (pointsData.last?.y ?? rect.size.height)))
             
+            gradientBezierPath.move(to: CGPoint(x: rect.origin.x, y: self.graphHeight))
+            
             let controlPoints = config.configureControlPoints(data: pointsData)
             
-            gradientBezierPath.move(to: CGPoint(x: rect.origin.x, y: rect.origin.y + rect.size.height + tolerranceValue))
             for index in 0 ..< pointsData.count {
                 let point = pointsData[index]
                 switch index {
@@ -458,26 +460,53 @@ extension AWLineChart {
                     lineBezierPath.move(to: point)
                     gradientBezierPath.addLine(to: point)
                 default:
-                    
+                
                     let segment = controlPoints[index - 1]
                     switch self.chartType {
                     case .linear:
                         lineBezierPath.addLine(to: point)
                         gradientBezierPath.addLine(to: point)
                     case .curved:
-                        lineBezierPath.addCurve(to: point,
-                                                controlPoint1: segment.firstControlPoint,
-                                                controlPoint2: segment.secondControlPoint)
-                        gradientBezierPath.addCurve(to: point,
-                                                    controlPoint1: segment.firstControlPoint,
-                                                    controlPoint2: segment.secondControlPoint)
+                        
+                        var valuePoint = point
+                        var firstControlPoint = segment.firstControlPoint
+                        var secondControlPoint = segment.secondControlPoint
+                        
+                        let topTolerrance: CGFloat = -10
+                        if valuePoint.y <= topTolerrance {
+                            valuePoint.y = topTolerrance
+                        }
+                        if firstControlPoint.y < topTolerrance {
+                            firstControlPoint.y = topTolerrance
+                        }
+                        if secondControlPoint.y < topTolerrance {
+                            secondControlPoint.y = topTolerrance
+                        }
+                        
+                        if valuePoint.y >= (rect.origin.y + rect.height) - self.lineWidth {
+                            valuePoint.y = (rect.origin.y + rect.height) - self.lineWidth
+                        }
+                        
+                        if firstControlPoint.y >= (rect.origin.y + rect.height) - self.lineWidth {
+                            firstControlPoint.y = (rect.origin.y + rect.height) - self.lineWidth
+                        }
+                        if secondControlPoint.y >= (rect.origin.y + rect.height) - self.lineWidth {
+                            secondControlPoint.y = (rect.origin.y + rect.height) - self.lineWidth
+                        }
+                        
+                        lineBezierPath.addCurve(to: valuePoint,
+                                                controlPoint1: firstControlPoint,
+                                                controlPoint2: secondControlPoint)
+                        gradientBezierPath.addCurve(to: valuePoint,
+                                                    controlPoint1: firstControlPoint,
+                                                    controlPoint2: secondControlPoint)
                         
                     }
                 }
             }
             
             let finalPoint = CGPoint(x: rect.origin.x + vSpace * (CGFloat(pointsData.count) - 1),
-                                     y: rect.origin.y + rect.size.height + tolerranceValue)
+                                     y: self.graphHeight)
             gradientBezierPath.addCurve(to: finalPoint, controlPoint1: finalPoint, controlPoint2: finalPoint)
             
             let shapeLayer = CAShapeLayer()
