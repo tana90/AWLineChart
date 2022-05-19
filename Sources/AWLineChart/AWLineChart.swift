@@ -87,7 +87,7 @@ public final class AWLineChart: UIView {
     fileprivate var maxValue: CGFloat = 0.0
     fileprivate var graphWidth: CGFloat = 0.0
     fileprivate var graphHeight: CGFloat = 0.0
-    fileprivate let padding: CGFloat = 22
+    fileprivate let padding: CGFloat = 44
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -187,8 +187,8 @@ extension AWLineChart {
         // Draw chart
         renderGroup.enter()
         drawChart(dataSource: dataSource,
-                  canvas: CGRect(x: bounds.origin.x, y: bounds.origin.y + padding + lineWidth,
-                                 width: graphWidth, height: graphHeight - padding - lineWidth),
+                  canvas: CGRect(x: bounds.origin.x, y: bounds.origin.y + padding / 1.9,
+                                 width: graphWidth, height: graphHeight - padding ),
                   queue: dispatchQueue) { layer in
             DispatchQueue.main.async { [weak self] in
                 self?.layer.addSublayer(layer)
@@ -467,40 +467,12 @@ extension AWLineChart {
                         lineBezierPath.addLine(to: point)
                         gradientBezierPath.addLine(to: point)
                     case .curved:
-                        
-                        var valuePoint = point
-                        var firstControlPoint = segment.firstControlPoint
-                        var secondControlPoint = segment.secondControlPoint
-                        
-                        let topTolerrance: CGFloat = -10
-                        if valuePoint.y <= topTolerrance {
-                            valuePoint.y = topTolerrance
-                        }
-                        if firstControlPoint.y < topTolerrance {
-                            firstControlPoint.y = topTolerrance
-                        }
-                        if secondControlPoint.y < topTolerrance {
-                            secondControlPoint.y = topTolerrance
-                        }
-                        
-                        if valuePoint.y >= (rect.origin.y + rect.height) - self.lineWidth {
-                            valuePoint.y = (rect.origin.y + rect.height) - self.lineWidth
-                        }
-                        
-                        if firstControlPoint.y >= (rect.origin.y + rect.height) - self.lineWidth {
-                            firstControlPoint.y = (rect.origin.y + rect.height) - self.lineWidth
-                        }
-                        if secondControlPoint.y >= (rect.origin.y + rect.height) - self.lineWidth {
-                            secondControlPoint.y = (rect.origin.y + rect.height) - self.lineWidth
-                        }
-                        
-                        lineBezierPath.addCurve(to: valuePoint,
-                                                controlPoint1: firstControlPoint,
-                                                controlPoint2: secondControlPoint)
-                        gradientBezierPath.addCurve(to: valuePoint,
-                                                    controlPoint1: firstControlPoint,
-                                                    controlPoint2: secondControlPoint)
-                        
+                        lineBezierPath.addCurve(to: point,
+                                                controlPoint1: segment.firstControlPoint,
+                                                controlPoint2: segment.secondControlPoint)
+                        gradientBezierPath.addCurve(to: point,
+                                                    controlPoint1: segment.firstControlPoint,
+                                                    controlPoint2: segment.secondControlPoint)
                     }
                 }
             }
