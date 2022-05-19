@@ -217,8 +217,8 @@ extension AWLineChart {
     fileprivate func sanitizeValues() {
         if minValue == maxValue {
             let avg = (minValue + maxValue) / 2
-            minValue = avg / 1.1
-            maxValue = avg / 0.95
+            minValue = avg / 1.01
+            maxValue = avg / 0.99
             
             if minValue == 0 && maxValue == 0 {
                 minValue = 0
