@@ -18,22 +18,22 @@ class <#Your View Controller#>: UIViewController {
 
     lazy var lineChart: AWLineChart = {
         let lineChart = AWLineChart()
-        lineChart.gridWidth: CGFloat = 0.3
-        lineChart.lineWidth: CGFloat = 3
-        lineChart.sideSpace: CGFloat = 44
-        lineChart.bottomSpace: CGFloat = 44
-        lineChart.showVerticalGrid: Bool = true
-        lineChart.showHorizontalGrid: Bool = true
-        lineChart.showBottomLabels: Bool = true
-        lineChart.showSideLabels: Bool = true
-        lineChart.gridColor: UIColor = .gray
-        lineChart.labelsColor: UIColor = .black
-        lineChart.animationDuration: Float = 0.3
+        lineChart.gridWidth = 0.3
+        lineChart.lineWidth = 3
+        lineChart.sideSpace = 44
+        lineChart.bottomSpace = 44
+        lineChart.showVerticalGrid = true
+        lineChart.showHorizontalGrid = true
+        lineChart.showBottomLabels = true
+        lineChart.showSideLabels = true
+        lineChart.gridColor = .gray
+        lineChart.labelsColor = .black
+        lineChart.animationDuration = 0.3
         lineChart.chartType = .curved
         lineChart.tintColor = .orange
         lineChart.dataSource = self
         lineChart.delegate = self
-        return lineGraph
+        return lineChart
     }()
         
     var data: [LineChartData] = [
@@ -63,8 +63,8 @@ extension <#Your View Controller#>: AWLineChartDataSource {
         return data[index].xValue 
     }
     
-    func lineChart(_ lineChart: AWLineChart, yValueAt index: Int) -> Double { 
-        return data[index].yValue 
+    func lineChart(_ lineChart: AWLineChart, yValueAt index: Int) -> CGFloat {
+        return data[index].yValue
     }
     
     func numberOfVerticalLines(in lineChart: AWLineChart) -> Int { 6 }
@@ -83,6 +83,9 @@ extension <#Your View Controller#>: AWLineChartDataSource {
 // MARK: Delegate
 
 extension <#Your View Controller#>: AWLineChartDelegate {
+    func lineChartDidFailRender(_ lineChar: AWLineChart) {
+        // Called when failed with rendering
+    }
     
     func lineChartDidStartRender(_ lineChart: AWLineChart) {
         // Called when start rendering
